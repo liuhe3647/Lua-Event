@@ -1,10 +1,47 @@
+--[[
+Example usage:
+
+-- create generic event handling function for a Cat class
+function Cat:OnEvent(eventname, ...)
+	if eventname == "MOUSE_SPAWNED" and not self.chasing then
+		local mouse = ...
+		self:ChaseMouse(mouse)
+	end
+end
+
+-- use a regular function to process the event as well
+function PrintWhenMouseSpawns(eventname, mouse)
+	print("MOUSE SPAWNED! "..tostring(mouse))
+end
+
+function Mouse:initialize(x, y)
+	self:Spawn(x, y)
+	Event.Trigger("MOUSE_SPAWNED", self) -- trigger the event and pass any arguments you want
+end
+
+-- register the Cat class and function we created with the MOUSE_SPAWNED event
+Event.Register(Cat, "MOUSE_SPAWNED")
+Event.Register(PrintWhenMouseSpawns, "MOUSE_SPAWNED")
+
+
+NOTE: an 'object' (the thing you register) can be either a function or a table.
+If it is a table, then when the event it's associated with is triggered, it will
+first look for a function of the same name as the event in the table, and if it
+doesn't find one it will fall back to the table's "OnEvent" method, if it exists.
+	
+]]
+
+
+
 Event = {}
 
 local events = {}
 
-local mt = {__mode="k"}
+local mt = {__mode="k"} -- weak keys so registered objects will be GC'd properly
+
 
 -- accepts any amount and type of arguments after the event name
+-- NOTE: triggered events have no guaranteed order in which callback objects are called
 function Event.Trigger(eventname, ...)
 	local eventlist = events[eventname] or {}
 	
@@ -95,6 +132,7 @@ function Event.Unregister(obj, ...)
 end
 
 
+-- returns array of event names registered to an object
 function Event.LookUp(obj)
 	if type(obj) == "table" or type(obj) == "function" then
 		local registeredevents = {}
