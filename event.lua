@@ -37,6 +37,12 @@ Event = {}
 
 local events = {}
 
+function printregistered(eventname)
+	for k,v in pairs(events[eventname]) do
+		print(k, v)
+	end
+end
+
 local mt = {__mode="k"} -- weak keys so registered objects will be GC'd properly
 
 
