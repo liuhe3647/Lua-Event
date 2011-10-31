@@ -37,7 +37,7 @@ Event = {}
 
 local events = {}
 
-function printregistered(eventname)
+local function printregistered(eventname)
 	for k,v in pairs(events[eventname]) do
 		print(k, v)
 	end
